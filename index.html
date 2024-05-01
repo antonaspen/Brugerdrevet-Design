@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TooGoodNotToTake</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+  <style>
+    body {
+      font-family: 'Baloo Bhaijaan', sans-serif;
+      text-align: center;
+      background-color: #F5DEB3;
+    }
+    h1 {
+      color: #333;
+      font-size: 90px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 100px 100px;
+      background-color: green;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      margin: 10px;
+      cursor: pointer; /* Gør musen til en hånd, når der er hover */
+    }
+    .form-container, .list-container {
+      display: none; /* Skjul formen og listen som standard */
+    }
+    .back-btn {
+      display: none;
+      margin-top: 10px;
+    }
+    .btn {
+      font-size: 50px; /* Større tekststørrelse */
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 10px;
+    }
+    .remove-btn {
+      background-color: #ff6347;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .thumbnail {
+      max-width: 100px;
+      max-height: 100px;
+    }
+  </style>
+</head>
+<body>
+<h1>TooGoodNotToTake</h1>
+<a href="#" class="btn" id="indlever-knap" onclick="showForm('indlever')">INDTAST DIN MAD HER</a>
+<a href="#" class="btn" id="se-knap" onclick="showList()">SE OG TAG MAD FRA KØLESKAB</a>
+
+<div class="form-container">
+  <h2>Indtast madoplysninger</h2>
+  <form id="mad-form">
+    <label for="madnavn">Navn på madvare:</label><br>
+    <input type="text" id="madnavn" name="madnavn"><br>
+    <label for="udløbsdato">Udløbsdato:</label><br>
+    <input type="date" id="udløbsdato" name="udløbsdato"><br>
+    <label for="åbningsdato">Dato for åbning:</label><br>
+    <input type="date" id="åbningsdato" name="åbningsdato"><br>
+    <label for="billede">Billede:</label><br>
+    <input type="file" id="billede" name="billede" accept="image/*"><br><br>
+    <input type="button" value="Gem" onclick="saveInfo()">
+  </form>
+</div>
+
+<div class="list-container">
+  <h2>Liste over madvarer</h2>
+  <table id="mad-tabel">
+    <thead>
+    <tr>
+      <th>Navn på madvare</th>
+      <th>Udløbsdato</th>
+      <th>Dato for åbning</th>
+      <th>Billede</th>
+      <th>Handling</th>
+    </tr>
+    </thead>
+    <tbody id="mad-liste-body">
+    </tbody>
+  </table>
+</div>
+
+<button class="back-btn" onclick="goBack()">Tilbage</button>
+
+<script>
+  var madvarer = [];
+
+  function showForm(formType) {
+    var formContainer = document.querySelector('.form-container');
+    formContainer.style.display = 'block';
+
+    var listContainer = document.querySelector('.list-container');
+    listContainer.style.display = 'none';
+
+    var seKnap = document.getElementById('se-knap');
+    var indleverKnap = document.getElementById('indlever-knap');
+    var backBtn = document.querySelector('.back-btn');
+
+    if (formType === 'se') {
+      seKnap.style.display = 'none';
+      backBtn.style.display = 'none';
+    } else if (formType === 'indlever') {
+      indleverKnap.style.display = 'none';
+      backBtn.style.display = 'inline-block';
+    }
+
+    // Nulstil inputfelterne
+    document.getElementById('mad-form').reset();
+  }
+
+  function goBack() {
+    var formContainer = document.querySelector('.form-container');
+    formContainer.style.display = 'none';
+
+    var listContainer = document.querySelector('.list-container');
+    listContainer.style.display = 'none';
+
+    var seKnap = document.getElementById('se-knap');
+    var indleverKnap = document.getElementById('indlever-knap');
+    var backBtn = document.querySelector('.back-btn');
+
+    seKnap.style.display = 'inline-block';
+    indleverKnap.style.display = 'inline-block';
+    backBtn.style.display = 'none';
+  }
+
+  function saveInfo() {
+    var madnavn = document.getElementById('madnavn').value;
+    var udløbsdato = document.getElementById('udløbsdato').value;
+    var åbningsdato = document.getElementById('åbningsdato').value;
+    var billede = document.getElementById('billede').files[0];
+    var billedeUrl = URL.createObjectURL(billede);
+
+    var mad = {
+      madnavn: madnavn,
+      udløbsdato: udløbsdato,
+      åbningsdato: åbningsdato,
+      billede: billedeUrl
+    };
+
+    madvarer.push(mad);
+
+    // Opdater tabellen
+    updateTable();
+
+    // Vis en besked om, at madvaren er blevet gemt
+    alert('Madvaren er blevet gemt!');
+  }
+
+  function showList() {
+    var listContainer = document.querySelector('.list-container');
+    listContainer.style.display = 'block';
+
+    var formContainer = document.querySelector('.form-container');
+    formContainer.style.display = 'none';
+
+    var seKnap = document.getElementById('se-knap');
+    var indleverKnap = document.getElementById('indlever-knap');
+    var backBtn = document.querySelector('.back-btn');
+
+    seKnap.style.display = 'none';
+    indleverKnap.style.display = 'none';
+    backBtn.style.display = 'inline-block';
+
+    // Opdater tabellen
+    updateTable();
+  }
+
+  function updateTable() {
+    var madListeBody = document.getElementById('mad-liste-body');
+    madListeBody.innerHTML = '';
+
+    madvarer.forEach(function(mad, index) {
+      var row = document.createElement('tr');
+      row.innerHTML = '<td>' + mad.madnavn + '</td>' +
+              '<td>' + mad.udløbsdato + '</td>' +
+              '<td>' + mad.åbningsdato + '</td>' +
+              '<td><img class="thumbnail" src="' + mad.billede + '" alt="' + mad.madnavn + '"></td>' +
+              '<td><button class="remove-btn" onclick="removeItem(' + index + ')">Tag mad</button></td>';
+      madListeBody.appendChild(row);
+    });
+  }
+
+  function removeItem(index) {
+    madvarer.splice(index, 1);
+    updateTable();
+  }
+</script>
+</body>
+</html>
